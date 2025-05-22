@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model Announcement {
+  id          BigInt   @id @default(autoincrement())
+  title       String
+  timestamptz DateTime
+  category    String
+  description String
+  companyId  BigInt?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+}
+
+model Company {
+  id         BigInt   @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  User       User[]
+}
+
+model Dashboard {
+  id         BigInt   @id @default(autoincrement())
+  name       String
+  dashboardData    Json
+  companyId  BigInt?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
+
+model Dataset {
+  id         BigInt   @id @default(autoincrement())
+  name       String
+  data       Json
+  companyId  BigInt?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
+
+model Deliverable {
+  id         BigInt   @id @default(autoincrement())
+  name       String
+  status     String
+  companyId  BigInt?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
+
+model Indicator {
+  id         BigInt   @id @default(autoincrement())
+  name       String
+  graph       String
+  accumulationType       String
+  formulaData       Json
+  equivalentFieldsData      Json
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
+
+model Log {
+  id          BigInt   @id @default(autoincrement())
+  action      String
+  userId      BigInt
+  companyId  BigInt?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+  User        User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id         BigInt   @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  role       UserRole @default(USER)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  companyId  BigInt?
+  Log        Log[]
+  Company    Company? @relation(fields: [companyId], references: [id])
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
